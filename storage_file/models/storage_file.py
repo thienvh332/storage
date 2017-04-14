@@ -4,33 +4,74 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from openerp import api, fields, models
+import logging
+import os
+_logger = logging.getLogger(__name__)
 
 
 class StorageFile(models.Model):
     _name = 'storage.file'
     _description = 'Storage File'
+    _inherit = 'ir.attachment'
 
-    owner_id = fields.Integer(
-        "Owner",
-        required=True)
-    owner_model = fields.Char(
-        required=True)
-    name = fields.Char(required=True)
-    url = fields.Char(compute='_compute_url')
-    storage_id = fields.Many2one(
+    # redefinition du field
+    url = fields.Char(help="HTTP accessible path for odoo backend to the file")
+    private_path = fields.Char(help='Location for backend, may be relative')
+    public_url = fields.Char(
+        compute='_compute_url',
+        help='Public url like CDN')  # ou path utile ?
+    backend_id = fields.Many2one(
         'storage.backend',
         'Storage',
         required=True)
-    meta = fields.Char()
-    file_type = fields.Selection([
-        ('binary', 'Binary'),
-        ], required=True)
-    data = fields.Binary(compute='_compute_data')
 
+    res_model = fields.Char(readonly=False)
+    res_id = fields.Integer(readonly=False)
+
+    # forward compliency to v9 and v10
+    checksum = fields.Char(
+        "Checksum/SHA1", size=40, select=True, readonly=True)
+    mimetype = fields.Char('Mime Type', readonly=True)
+    index_content = fields.Char('Indexed Content', readonly=True)
+    public = fields.Boolean('Is public document')
+
+    filename = fields.Char(
+        "Filename without extension", compute='_compute_extract_filename')
+    extension = fields.Char("Extension", compute='_compute_extract_filename')
+
+    datas = fields.Binary(
+        help="The file",
+        inverse='_inverse_upload_file',
+        compute='_compute_upload_file',
+        store=False)  #
+
+    def _inverse_upload_file(self):
+        import pdb
+        pdb.set_trace()
+        _logger.warning('comupte set file [parent]')
+
+    @api.multi
+    def _compute_upload_file(self):
+        _logger.warning('comupte get file [parent]')
+        for rec in self:
+            rec.datas = rec.backend_id.get_base64(self)
+
+    @api.model
+    def create(self, vals):
+        _logger.info('dans parent, normalement on devrait faire le store ici')
+        return super(StorageFile, self).create(vals)
+
+    @api.depends('backend_id')
     def _compute_url(self):
-        pass
-        # TODO
+        # attention peut être appelé n'importe quand
+        _logger.info('compute_url du parent')
+        for rec in self:
+            rec.public_url = rec.backend_id.get_public_url(rec)
 
-    def _compute_data(self):
-        pass
-        # TODO
+    @api.depends('name')
+    def _compute_extract_filename(self):
+        for rec in self:
+            self.filename, self.extension = os.path.splitext(
+                self.name
+            )
+            _logger.info('file name:  %s' % self.filename)
