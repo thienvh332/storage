@@ -8,7 +8,9 @@ import base64
 import fnmatch
 import logging
 
-from odoo import fields, models
+from odoo import _, fields, models
+
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -25,6 +27,12 @@ class StorageBackend(models.Model):
     directory_path = fields.Char(
         help="Relative path to the directory to store the file"
     )
+    has_validation = fields.Boolean(compute="_compute_has_validation")
+
+    def _compute_has_validation(self):
+        for rec in self:
+            adapter = self._get_adapter()
+            rec.has_validation = hasattr(adapter, "validate_config")
 
     @property
     def _server_env_fields(self):
@@ -74,3 +82,15 @@ class StorageBackend(models.Model):
     def _get_adapter(self):
         with self.work_on(self._name) as work:
             return work.component(usage=self.backend_type)
+
+    def action_test_config(self):
+        if not self.has_validation:
+            raise AttributeError("Validation not supported!")
+        adapter = self._get_adapter()
+        try:
+            adapter.validate_config()
+            raise UserError(
+                _("Connection Test Succeeded!\nEverything seems properly set up!")
+            )
+        except Exception as err:
+            raise UserError(_("Connection Test Failed!\n%s") % str(err))
