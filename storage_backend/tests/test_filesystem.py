@@ -5,7 +5,11 @@ import os
 
 from odoo.exceptions import AccessError
 
-from .common import CommonCase, BackendStorageTestMixin
+from .common import BackendStorageTestMixin, CommonCase
+
+ADAPTER_PATH = (
+    "odoo.addons.storage_backend.components.filesystem_adapter.FileSystemStorageBackend"
+)
 
 
 ADAPTER_PATH = (
@@ -14,7 +18,6 @@ ADAPTER_PATH = (
 
 
 class FileSystemCase(CommonCase, BackendStorageTestMixin):
-
     def test_setting_and_getting_data_from_root(self):
         self._test_setting_and_getting_data_from_root()
 
@@ -30,9 +33,19 @@ class FileSystemCase(CommonCase, BackendStorageTestMixin):
             backend, ADAPTER_PATH, self.filename, destination_path, expected
         )
 
+    def test_find_files(self):
+        good_filepaths = ["somepath/file%d.good" % x for x in range(1, 10)]
+        bad_filepaths = ["somepath/file%d.bad" % x for x in range(1, 10)]
+        mocked_filepaths = bad_filepaths + good_filepaths
+        backend = self.backend.sudo()
+        base_dir = backend._get_adapter()._basedir()
+        expected = [base_dir + "/" + path for path in good_filepaths]
+        self._test_find_files(
+            backend, ADAPTER_PATH, mocked_filepaths, r".*\.good$", expected
+        )
+
 
 class FileSystemDemoUserAccessCase(CommonCase):
-
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
