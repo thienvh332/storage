@@ -6,10 +6,10 @@ import base64
 
 from unittest import mock
 
-from odoo.addons.component.tests.common import TransactionComponentCase
+from odoo.addons.component.tests.common import SavepointComponentCase
 
 
-class GenericStoreCase(object):
+class BackendStorageTestMixin(object):
     def _test_setting_and_getting_data(self):
         # Check that the directory is empty
         files = self.backend.list_files()
@@ -17,7 +17,7 @@ class GenericStoreCase(object):
 
         # Add a new file
         self.backend.add(
-            self.filename, self.filedata, mimetype=u"text/plain", binary=False
+            self.filename, self.filedata, mimetype="text/plain", binary=False
         )
 
         # Check that the file exist
@@ -33,12 +33,13 @@ class GenericStoreCase(object):
         files = self.backend.list_files()
         self.assertNotIn(self.filename, files)
 
-    def test_setting_and_getting_data_from_root(self):
+    def _test_setting_and_getting_data_from_root(self):
         self._test_setting_and_getting_data()
 
-    def test_setting_and_getting_data_from_dir(self):
+    def _test_setting_and_getting_data_from_dir(self):
         self.backend.directory_path = self.case_with_subdirectory
         self._test_setting_and_getting_data()
+
     def _test_move_files(
         self,
         backend,
@@ -53,16 +54,14 @@ class GenericStoreCase(object):
             self.assertEqual(sorted(res), sorted(expected_filepaths))
 
 
-class Common(TransactionComponentCase):
-    def _add_access_right_to_user(self):
-        self.user.write({"groups_id": [(4, self.env.ref("base.group_system").id)]})
+class CommonCase(SavepointComponentCase):
 
-    def setUp(self):
-        super(Common, self).setUp()
-        self.user = self.env.ref("base.user_demo")
-        self._add_access_right_to_user()
-        self.env = self.env(user=self.user)
-        self.backend = self.env.ref("storage_backend.default_storage_backend")
-        self.filedata = base64.b64encode(b"This is a simple file")
-        self.filename = "test_file.txt"
-        self.case_with_subdirectory = "subdirectory/here"
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.env = cls.env(context=dict(cls.env.context, tracking_disable=True))
+        cls.backend = cls.env.ref("storage_backend.default_storage_backend")
+        cls.filedata = base64.b64encode(b"This is a simple file")
+        cls.filename = "test_file.txt"
+        cls.case_with_subdirectory = "subdirectory/here"
+        cls.demo_user = cls.env.ref("base.user_demo")
