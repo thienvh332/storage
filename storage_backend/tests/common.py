@@ -12,23 +12,25 @@ from odoo.addons.component.tests.common import TransactionComponentCase
 class GenericStoreCase(object):
     def _test_setting_and_getting_data(self):
         # Check that the directory is empty
-        files = self.backend._list()
+        files = self.backend.list_files()
         self.assertNotIn(self.filename, files)
 
         # Add a new file
-        self.backend._add_b64_data(self.filename, self.filedata, mimetype=u"text/plain")
+        self.backend.add(
+            self.filename, self.filedata, mimetype=u"text/plain", binary=False
+        )
 
         # Check that the file exist
-        files = self.backend._list()
+        files = self.backend.list_files()
         self.assertIn(self.filename, files)
 
         # Retrieve the file added
-        data = self.backend._get_b64_data(self.filename)
+        data = self.backend.get(self.filename, binary=False)
         self.assertEqual(data, self.filedata)
 
         # Delete the file
-        self.backend._delete(self.filename)
-        files = self.backend._list()
+        self.backend.delete(self.filename)
+        files = self.backend.list_files()
         self.assertNotIn(self.filename, files)
 
     def test_setting_and_getting_data_from_root(self):
