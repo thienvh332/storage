@@ -4,12 +4,12 @@
 # Copyright 2020 ACSONE SA/NV (<http://acsone.eu>)
 # @author Simone Orsi <simahawk@gmail.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
-import re
 import errno
 import logging
 import os
 from contextlib import contextmanager
 from io import StringIO
+
 from odoo.addons.component.core import Component
 
 _logger = logging.getLogger(__name__)
@@ -60,7 +60,7 @@ def sftp(backend):
     transport.close()
 
 
-class SftpStorageBackend(Component):
+class SFTPStorageBackendAdapter(Component):
     _name = "sftp.adapter"
     _inherit = "base.storage.adapter"
     _usage = "sftp"
@@ -106,7 +106,9 @@ class SftpStorageBackend(Component):
         fp = self._fullpath
         with sftp(self.collection) as client:
             for sftp_file in files:
-                dest_file_path = os.path.join(destination_path, os.path.basename(sftp_file))
+                dest_file_path = os.path.join(
+                    destination_path, os.path.basename(sftp_file)
+                )
                 # Remove existing file at the destination path (an error is raised
                 # otherwise)
                 try:

@@ -14,18 +14,20 @@ import os
 
 import mock
 
-from odoo.addons.storage_backend.tests.common import Common, GenericStoreCase
+from odoo.addons.storage_backend.tests.common import BackendStorageTestMixin, CommonCase
 
 _logger = logging.getLogger(__name__)
 
 MOD_PATH = "odoo.addons.storage_backend_sftp.components.sftp_adapter"
+ADAPTER_PATH = MOD_PATH + ".SFTPStorageBackendAdapter"
 PARAMIKO_PATH = MOD_PATH + ".paramiko"
 
 
-class SftpCase(Common, GenericStoreCase):
-    def setUp(self):
-        super(SftpCase, self).setUp()
-        self.backend.write(
+class SftpCase(CommonCase, BackendStorageTestMixin):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.backend.write(
             {
                 "backend_type": "sftp",
                 "sftp_login": "foo",
@@ -35,7 +37,7 @@ class SftpCase(Common, GenericStoreCase):
                 "directory_path": "upload",
             }
         )
-        self.case_with_subdirectory = "upload/subdirectory/here"
+        cls.case_with_subdirectory = "upload/subdirectory/here"
 
     @mock.patch(MOD_PATH + ".sftp_mkdirs")
     @mock.patch(PARAMIKO_PATH)
@@ -66,7 +68,7 @@ class SftpCase(Common, GenericStoreCase):
         with open("/tmp/fakefile2.txt", "w+b") as fakefile:
             fakefile.write(b"filecontent")
         client.open.return_value = open("/tmp/fakefile2.txt", "r")
-        self.assertEqual(self.backend._get_bin_data("fake/path"), "filecontent")
+        self.assertEqual(self.backend.get("fake/path"), "filecontent")
 
     @mock.patch(PARAMIKO_PATH)
     def test_list(self, mocked_paramiko):
@@ -82,10 +84,16 @@ class SftpCase(Common, GenericStoreCase):
         client.listdir.side_effect = exc
         self.assertEqual(self.backend._list(), [])
 
-    def test_setting_and_getting_data_from_root(self):
-        # bypass as we tested all the methods mocked specifically above.
-        # Would be nice to have an integration test but is not feasible ATM.
-        pass
+    def test_find_files(self):
+        good_filepaths = ["somepath/file%d.good" % x for x in range(1, 10)]
+        bad_filepaths = ["somepath/file%d.bad" % x for x in range(1, 10)]
+        mocked_filepaths = bad_filepaths + good_filepaths
+        backend = self.backend.sudo()
+        expected = good_filepaths[:]
+        expected = [backend.directory_path + "/" + path for path in good_filepaths]
+        self._test_find_files(
+            backend, ADAPTER_PATH, mocked_filepaths, r".*\.good$", expected
+        )
 
     @mock.patch(PARAMIKO_PATH)
     def test_move_files(self, mocked_paramiko):
