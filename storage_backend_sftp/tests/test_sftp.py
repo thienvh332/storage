@@ -87,7 +87,27 @@ class SftpCase(Common, GenericStoreCase):
         # Would be nice to have an integration test but is not feasible ATM.
         pass
 
-    def test_setting_and_getting_data_from_dir(self):
-        # bypass as we tested all the methods mocked specifically above
-        # Would be nice to have an integration test but is not feasible ATM.
-        pass
+    @mock.patch(PARAMIKO_PATH)
+    def test_move_files(self, mocked_paramiko):
+        client = mocked_paramiko.SFTPClient.from_transport()
+        # simulate file is not already there
+        client.lstat.side_effect = FileNotFoundError()
+        to_move = "move/from/path/myfile.txt"
+        to_path = "move/to/path"
+        self.backend.move_files([to_move], to_path)
+        # no need to delete it
+        client.unlink.assert_not_called()
+        # rename gets called
+        client.rename.assert_called_with(
+            "upload/" + to_move, "upload/" + to_move.replace("from", "to")
+        )
+        # now try to override destination
+        client.lstat.side_effect = None
+        client.lstat.return_value = True
+        self.backend.move_files([to_move], to_path)
+        # client will delete it first
+        client.unlink.assert_called_with(to_move.replace("from", "to"))
+        # then move it
+        client.rename.assert_called_with(
+            "upload/" + to_move, "upload/" + to_move.replace("from", "to")
+        )
