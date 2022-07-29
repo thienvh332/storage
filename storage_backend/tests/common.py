@@ -4,6 +4,8 @@
 
 import base64
 
+from unittest import mock
+
 from odoo.addons.component.tests.common import TransactionComponentCase
 
 
@@ -35,6 +37,18 @@ class GenericStoreCase(object):
     def test_setting_and_getting_data_from_dir(self):
         self.backend.directory_path = self.case_with_subdirectory
         self._test_setting_and_getting_data()
+    def _test_move_files(
+        self,
+        backend,
+        adapter_dotted_path,
+        filename,
+        destination_path,
+        expected_filepaths,
+    ):
+        with mock.patch(adapter_dotted_path + ".move_files") as mocked:
+            mocked.return_value = expected_filepaths
+            res = backend.move_files(filename, destination_path)
+            self.assertEqual(sorted(res), sorted(expected_filepaths))
 
 
 class Common(TransactionComponentCase):

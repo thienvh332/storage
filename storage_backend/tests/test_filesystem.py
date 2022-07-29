@@ -1,14 +1,25 @@
 # Copyright 2017 Akretion (http://www.akretion.com).
 # @author Sébastien BEAU <sebastien.beau@akretion.com>
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
+import os
 
 from odoo.exceptions import AccessError
 
 from .common import Common, GenericStoreCase
 
-
+ADAPTER_PATH = (
+    "odoo.addons.storage_backend.components.filesystem_adapter.FileSystemStorageBackend"
+)
 class FileSystemCase(Common, GenericStoreCase):
-    pass
+
+    def test_move_files(self):
+        backend = self.backend.sudo()
+        base_dir = backend._get_adapter()._basedir()
+        expected = [base_dir + "/" + self.filename]
+        destination_path = os.path.join(base_dir, "destination")
+        self._test_move_files(
+            backend, ADAPTER_PATH, self.filename, destination_path, expected
+        )
 
 
 class FileSystemDemoUserAccessCase(Common):
