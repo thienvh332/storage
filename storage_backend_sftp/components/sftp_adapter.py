@@ -102,11 +102,11 @@ class SFTPStorageBackendAdapter(Component):
 
     def move_files(self, files, destination_path):
         _logger.debug("mv %s %s", files, destination_path)
-        fp = self._fullpath
+        destination_full_path = self._fullpath(destination_path)
         with sftp(self.collection) as client:
             for sftp_file in files:
                 dest_file_path = os.path.join(
-                    destination_path, os.path.basename(sftp_file)
+                    destination_full_path, os.path.basename(sftp_file)
                 )
                 # Remove existing file at the destination path (an error is raised
                 # otherwise)
@@ -116,8 +116,9 @@ class SFTPStorageBackendAdapter(Component):
                     _logger.debug("destination %s is free", dest_file_path)
                 else:
                     client.unlink(dest_file_path)
-                # Move the file using absolute filepaths
-                client.rename(fp(sftp_file), fp(dest_file_path))
+                # Move the file
+                full_path = self._fullpath(sftp_file)
+                client.rename(full_path, dest_file_path)
 
     def delete(self, relative_path):
         full_path = self._fullpath(relative_path)
