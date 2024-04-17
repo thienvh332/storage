@@ -49,6 +49,12 @@ class StorageBackend(models.Model):
             names = fnmatch.filter(names, pattern)
         return names
 
+    def _find_files(self, pattern, relative_path="", **kw):
+        return self._forward("find_files", pattern, relative_path)
+
+    def move_files(self, files, destination_path, **kw):
+        return self._forward("move_files", files, destination_path, **kw)
+
     def _delete(self, relative_path):
         return self._forward("delete", relative_path)
 
