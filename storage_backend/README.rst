@@ -1,6 +1,6 @@
-==============
-Storage Bakend
-==============
+===============
+Storage Backend
+===============
 
 .. 
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -74,6 +74,13 @@ Contributors
 -  Benoît Guillot <benoit.guillot@akretion.com>
 -  Laurent Mignon <laurent.mignon@acsone.eu>
 -  Denis Roussel <denis.roussel@acsone.eu>
+-  Thien Vo <thienvh@trobz.com>
+
+Other credits
+-------------
+
+The migration of this module from 16.0 to 18.0 was financially supported
+by Camptocamp.
 
 Maintainers
 -----------
