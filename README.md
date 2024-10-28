@@ -17,7 +17,11 @@ storage
 
 [//]: # (addons)
 
-This part will be replaced when running the oca-gen-addons-table script from OCA/maintainer-tools.
+Available addons
+----------------
+addon | version | maintainers | summary
+--- | --- | --- | ---
+[fs_storage](fs_storage/) | 18.0.1.0.0 |  | Implement the concept of Storage with amazon S3, sftp...
 
 [//]: # (end addons)
 
