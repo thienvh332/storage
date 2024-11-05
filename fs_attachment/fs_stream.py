@@ -38,7 +38,13 @@ class FsStream(Stream):
                 return f.read()
         return super().read()
 
-    def get_response(self, as_attachment=None, immutable=None, **send_file_kwargs):
+    def get_response(
+        self,
+        as_attachment=None,
+        immutable=None,
+        content_security_policy="default-src 'none'",
+        **send_file_kwargs,
+    ):
         if self.type != "fs":
             return super().get_response(
                 as_attachment=as_attachment, immutable=immutable, **send_file_kwargs
@@ -79,6 +85,12 @@ class FsStream(Stream):
 
         if immutable and res.cache_control:
             res.cache_control["immutable"] = None
+
+        res.headers["X-Content-Type-Options"] = "nosniff"
+
+        if content_security_policy:
+            res.headers["Content-Security-Policy"] = content_security_policy
+
         return res
 
     @classmethod
