@@ -1,3 +1,10 @@
+## 18.0.1.0.1 (2024-11-10)
+
+### Features
+
+- Invalidate FS filesystem object cache when the connection fails, forcing a reconnection. ([#320](https://github.com/OCA/storage/issues/320))
+
+
 ## 16.0.1.1.0 (2023-12-22)
 
 **Features**
