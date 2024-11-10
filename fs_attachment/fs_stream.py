@@ -57,7 +57,6 @@ class FsStream(Stream):
             "max_age": STATIC_CACHE_LONG if immutable else self.max_age,
             "environ": request.httprequest.environ,
             "response_class": Response,
-            **send_file_kwargs,
         }
         use_x_sendfile = self._fs_use_x_sendfile
         # The file will be closed by werkzeug...
