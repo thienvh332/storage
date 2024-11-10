@@ -147,3 +147,16 @@ class TestStream(HttpCase):
             },
         )
         self.assertEqual(Image.open(io.BytesIO(res.content)).size, (64, 64))
+
+    def test_response_csp_header(self):
+        self.authenticate("admin", "admin")
+        url = f"/web/content/{self.attachment_binary.id}"
+        self.assertDownload(
+            url,
+            headers={},
+            assert_status_code=200,
+            assert_headers={
+                "X-Content-Type-Options": "nosniff",
+                "Content-Security-Policy": "default-src 'none'",
+            },
+        )
