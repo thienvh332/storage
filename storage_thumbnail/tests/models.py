@@ -3,7 +3,6 @@ from odoo import api, fields, models
 
 # Declare as Transient to avoid ACL missing warning
 class ModelTest(models.TransientModel):
-
     _name = "model.test"
     _inherit = "thumbnail.mixin"
     _inherits = {"storage.file": "file_id"}
