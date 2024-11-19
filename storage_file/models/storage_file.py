@@ -11,8 +11,7 @@ import re
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
-from odoo.tools import human_size
-from odoo.tools.translate import _
+from odoo.tools import SQL, human_size
 
 _logger = logging.getLogger(__name__)
 
@@ -44,14 +43,10 @@ class StorageFile(models.Model):
     slug = fields.Char(
         compute="_compute_slug", help="Slug-ified name with ID for URL", store=True
     )
-    relative_path = fields.Char(
-        readonly=True, help="Relative location for backend", copy=False
-    )
-    file_size = fields.Integer("File Size")
-    human_file_size = fields.Char(
-        "Human File Size", compute="_compute_human_file_size", store=True
-    )
-    checksum = fields.Char("Checksum/SHA1", size=40, index=True, readonly=True)
+    relative_path = fields.Char(help="Relative location for backend", copy=False)
+    file_size = fields.Integer()
+    human_file_size = fields.Char(compute="_compute_human_file_size", store=True)
+    checksum = fields.Char("Checksum/SHA1", size=40, index=True)
     filename = fields.Char(
         "Filename without extension", compute="_compute_extract_filename", store=True
     )
@@ -84,9 +79,11 @@ class StorageFile(models.Model):
             for record in self:
                 if record.data:
                     raise UserError(
-                        _("File can not be updated," "remove it and create a new one")
+                        self.env._(
+                            "File can not be updated, remove it and create a new one"
+                        )
                     )
-        return super(StorageFile, self).write(vals)
+        return super().write(vals)
 
     @api.depends("file_size")
     def _compute_human_file_size(self):
@@ -109,11 +106,10 @@ class StorageFile(models.Model):
         strategy = self.sudo().backend_id.filename_strategy
         if not strategy:
             raise UserError(
-                _(
+                self.env._(
                     "The filename strategy is empty for the backend %s.\n"
                     "Please configure it"
-                )
-                % self.backend_id.name
+                ).format(self.backend_id.name)
             )
         if strategy == "hash":
             return checksum[:2] + "/" + checksum
@@ -195,29 +191,34 @@ class StorageFile(models.Model):
 
     def unlink(self):
         if self._context.get("cleanning_storage_file"):
-            super(StorageFile, self).unlink()
+            super().unlink()
         else:
             self.write({"to_delete": True, "active": False})
         return True
 
     @api.model
-    def _clean_storage_file(self):
+    def _clean_storage_file(self, batch_size=1000):
         # we must be sure that all the changes are into the DB since
         # we by pass the ORM
-        self.flush()
+        self.flush_model(["to_delete"])
         self._cr.execute(
-            """SELECT id
+            SQL("""SELECT id
             FROM storage_file
-            WHERE to_delete=True FOR UPDATE"""
+            WHERE to_delete=True FOR UPDATE""")
         )
         ids = [x[0] for x in self._cr.fetchall()]
-        for st_file in self.browse(ids):
+        recordset = self.browse(ids[:batch_size])
+        for st_file in recordset:
             st_file.backend_id.sudo().delete(st_file.relative_path)
             st_file.with_context(cleanning_storage_file=True).unlink()
             # commit is required since the backend could be an external system
             # therefore, if the record is deleted on the external system
             # we must be sure that the record is also deleted into Odoo
             st_file._cr.commit()
+        done = len(recordset)
+        self.env["ir.cron"]._notify_progress(
+            done=done, remaining=0 if done <= batch_size else len(ids) - done
+        )
 
     @api.model
     def get_from_slug_name_with_id(self, slug_name_with_id):

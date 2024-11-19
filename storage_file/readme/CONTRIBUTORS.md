@@ -1,2 +1,3 @@
 - Sebastien Beau \<<sebastien.beau@akretion.com>\>
 - Raphaël Reverdy \<<raphael.reverdy@akretion.com>\>
+- Vo Hong Thien \<<thienvh@trobz.com>\>
