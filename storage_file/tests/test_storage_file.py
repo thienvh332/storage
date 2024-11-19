@@ -35,25 +35,25 @@ class StorageFileCase(TransactionComponentCase):
         self.assertEqual(stfile.mimetype, "text/plain")
         self.assertEqual(stfile.extension, ".txt")
         self.assertEqual(stfile.filename, "test of my_file")
-        self.assertEqual(stfile.relative_path, "test-of-my_file-%s.txt" % stfile.id)
+        self.assertEqual(stfile.relative_path, f"test-of-my_file-{stfile.id}.txt")
         url = parse.urlparse(stfile.url)
-        self.assertEqual(url.path, "/storage.file/test-of-my_file-%s.txt" % stfile.id)
+        self.assertEqual(url.path, f"/storage.file/test-of-my_file-{stfile.id}.txt")
         self.assertEqual(stfile.file_size, self.filesize)
 
     def test_get_from_slug_name_with_id(self):
         stfile = self._create_storage_file()
         stfile2 = self.env["storage.file"].get_from_slug_name_with_id(
-            "test-of-my_file-%s.txt" % stfile.id
+            f"test-of-my_file-{stfile.id}.txt"
         )
         self.assertEqual(stfile, stfile2)
         # the method parse the given string to find the id. The id is the
         # last sequence of digit starting with '-'
         stfile2 = self.env["storage.file"].get_from_slug_name_with_id(
-            "test-999-%s.txt2" % stfile.id
+            f"test-999-{stfile.id}.txt2"
         )
         self.assertEqual(stfile, stfile2)
         stfile2 = self.env["storage.file"].get_from_slug_name_with_id(
-            "test-999-%s" % stfile.id
+            f"test-999-{stfile.id}"
         )
         self.assertEqual(stfile, stfile2)
 
@@ -115,7 +115,7 @@ class StorageFileCase(TransactionComponentCase):
         # served by odoo
         self.assertEqual(
             stfile.url_path,
-            "/storage.file/test-of-my_file-{}.txt".format(stfile.id),
+            f"/storage.file/test-of-my_file-{stfile.id}.txt",
         )
         # served by external
         stfile.backend_id.update(
@@ -125,18 +125,18 @@ class StorageFileCase(TransactionComponentCase):
                 "directory_path": "baz",
             }
         )
-        stfile.invalidate_cache()
+        stfile.invalidate_model()
         # path not included
         self.assertEqual(
             stfile.with_context(foo=1).url_path,
-            "/test-of-my_file-{}.txt".format(stfile.id),
+            f"/test-of-my_file-{stfile.id}.txt",
         )
         # path included
         stfile.backend_id.url_include_directory_path = True
-        stfile.invalidate_cache()
+        stfile.invalidate_model()
         self.assertEqual(
             stfile.url_path,
-            "/baz/test-of-my_file-{}.txt".format(stfile.id),
+            f"/baz/test-of-my_file-{stfile.id}.txt",
         )
 
     def test_url_for_report(self):
@@ -172,7 +172,7 @@ class StorageFileCase(TransactionComponentCase):
         stfile = self._create_storage_file()
         self.assertEqual(stfile.data, self.filedata)
         self.assertEqual(
-            stfile.url, "https://cdn.example.com/test-of-my_file-%s.txt" % stfile.id
+            stfile.url, f"https://cdn.example.com/test-of-my_file-{stfile.id}.txt"
         )
         self.assertEqual(stfile.file_size, self.filesize)
 
@@ -232,12 +232,12 @@ class StorageFileCase(TransactionComponentCase):
         # Public user used on the controller when authentication is 'public'
         public_user = self.env.ref("base.public_user")
         with self.assertRaises(AccessError):
-            # BUG OR NOT with_user doesn't invalidate the cache...
-            # force cache invalidation
-            self.env.cache.invalidate()
-            self.env[storage_file._name].with_user(public_user).browse(
-                storage_file.ids
-            ).name
+            _ = (
+                self.env[storage_file._name]
+                .with_user(public_user)
+                .browse(storage_file.ids)
+                .name
+            )
         return True
 
     def test_public_access2(self):

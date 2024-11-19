@@ -7,6 +7,7 @@
 import logging
 
 from odoo import api, fields, models
+from odoo.tools import SQL
 
 _logger = logging.getLogger(__name__)
 
@@ -133,7 +134,7 @@ class StorageBackend(models.Model):
         Hence, let's offer an easy way to promptly force this manually when needed.
         """
         self._compute_base_url_for_files()
-        self.env["storage.file"].invalidate_cache(["url"])
+        self.env["storage.file"].invalidate_model(["url"])
 
     def _get_base_url_from_param(self):
         base_url_param = (
@@ -164,7 +165,7 @@ class StorageBackend(models.Model):
         )
         if not backends:
             return
-        sql = f"SELECT id FROM {self._table} WHERE ID IN %s FOR UPDATE"
+        sql = SQL(f"SELECT id FROM {self._table} WHERE ID IN %s FOR UPDATE")
         self.env.cr.execute(sql, (tuple(backends.ids),), log_exceptions=False)
         backends.action_recompute_base_url_for_files()
         _logger.info("storage.backend base URL for files refreshed")

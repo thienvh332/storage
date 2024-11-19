@@ -9,37 +9,31 @@
                 <div
                     class="alert alert-info"
                     role="alert"
-                    attrs="{'invisible': [('served_by', '!=', 'odoo')]}"
+                    invisible="served_by != 'odoo'"
                 >
                     Served by Odoo option will use `web.base.url` as the base URL.
                     <br />Make sure this parameter is properly configured and accessible
                     from everwhere you want to access the service.
                 </div>
-                <field
-                    name="is_public"
-                    attrs="{'invisible': [('served_by', '!=', 'odoo')]}"
-                />
-                <field
-                    name="base_url"
-                    attrs="{'invisible':[('served_by', '!=', 'external')]}"
-                />
+                <field name="is_public" invisible="served_by != 'odoo'" />
+                <field name="base_url" invisible="served_by != 'external'" />
                 <field name="filename_strategy" />
                 <field name="backend_view_use_internal_url" />
             </field>
             <field name="directory_path" position="after">
                 <field
                     name="url_include_directory_path"
-                    attrs="{'invisible': [('directory_path', '=', False)]}"
+                    invisible="directory_path == False"
                 />
                 <field
                     name="base_url_for_files"
                     string="Base URL used for files"
-                    attrs="{'invisible':[('served_by', '!=', 'external')]}"
+                    invisible="served_by != 'external'"
                 />
                 <div
                     class="alert alert-info"
                     role="alert"
-                    attrs="{'invisible': [('served_by', '!=', 'external')]}"
+                    invisible="served_by != 'external'"
                 >
                     When served by external service you might have special environment configuration
                     for building final files URLs.
