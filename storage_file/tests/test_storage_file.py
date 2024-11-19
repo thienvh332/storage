@@ -3,9 +3,8 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 
 import base64
+from unittest import mock
 from urllib import parse
-
-import mock
 
 from odoo.exceptions import AccessError, UserError
 
@@ -62,28 +61,28 @@ class StorageFileCase(TransactionComponentCase):
         stfile = self._create_storage_file()
         self.assertEqual(
             stfile.slug,
-            "test-of-my_file-{}.txt".format(stfile.id),
+            f"test-of-my_file-{stfile.id}.txt",
         )
         stfile.name = "Name has changed.png"
         self.assertEqual(
             stfile.slug,
-            "name-has-changed-{}.png".format(stfile.id),
+            f"name-has-changed-{stfile.id}.png",
         )
 
     def test_internal_url(self):
         stfile = self._create_storage_file()
         self.assertEqual(
             stfile.internal_url,
-            "/storage.file/test-of-my_file-{}.txt".format(stfile.id),
+            f"/storage.file/test-of-my_file-{stfile.id}.txt",
         )
         stfile.name = "Name has changed.png"
         self.assertEqual(
             stfile.slug,
-            "name-has-changed-{}.png".format(stfile.id),
+            f"name-has-changed-{stfile.id}.png",
         )
         self.assertEqual(
             stfile.internal_url,
-            "/storage.file/name-has-changed-{}.png".format(stfile.id),
+            f"/storage.file/name-has-changed-{stfile.id}.png",
         )
 
     def test_url(self):
@@ -93,7 +92,7 @@ class StorageFileCase(TransactionComponentCase):
         # served by odoo
         self.assertEqual(
             stfile.url,
-            "{}/storage.file/test-of-my_file-{}.txt".format(base_url, stfile.id),
+            f"{base_url}/storage.file/test-of-my_file-{stfile.id}.txt",
         )
         # served by external
         stfile.backend_id.update(
@@ -104,13 +103,11 @@ class StorageFileCase(TransactionComponentCase):
             }
         )
         # path not included
-        self.assertEqual(
-            stfile.url, "https://foo.com/test-of-my_file-{}.txt".format(stfile.id)
-        )
+        self.assertEqual(stfile.url, f"https://foo.com/test-of-my_file-{stfile.id}.txt")
         # path included
         stfile.backend_id.url_include_directory_path = True
         self.assertEqual(
-            stfile.url, "https://foo.com/baz/test-of-my_file-{}.txt".format(stfile.id)
+            stfile.url, f"https://foo.com/baz/test-of-my_file-{stfile.id}.txt"
         )
 
     def test_url_for_report(self):
@@ -120,7 +117,7 @@ class StorageFileCase(TransactionComponentCase):
         # served by odoo
         self.assertEqual(
             stfile.with_context(print_report_pdf=True).url,
-            "http://report.url/storage.file/test-of-my_file-{}.txt".format(stfile.id),
+            f"http://report.url/storage.file/test-of-my_file-{stfile.id}.txt",
         )
 
     def test_create_store_with_hash(self):
