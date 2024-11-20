@@ -8,7 +8,7 @@ import logging
 import requests
 
 from odoo import api, fields, models
-from odoo.tools import ImageProcess
+from odoo.tools.image import ImageProcess
 
 _logger = logging.getLogger(__name__)
 
@@ -40,8 +40,7 @@ class StorageThumbnail(models.Model):
             "data": self._resize(image, size_x, size_y, extension),
             "res_model": image._name,
             "res_id": image.id,
-            "name": "%s_%s_%s%s"
-            % (url_key or image.filename, size_x, size_y, extension),
+            "name": f"{url_key or image.filename}_{size_x}_{size_y}{extension}",
             "size_x": size_x,
             "size_y": size_y,
             "url_key": url_key,
@@ -56,9 +55,11 @@ class StorageThumbnail(models.Model):
         if image_resize_server and image.backend_id.served_by != "odoo":
             values = {"url": image.url, "width": size_x, "height": size_y, "fmt": fmt}
             url = image_resize_server.format(**values)
-            return base64.encodebytes(requests.get(url).content)
-        image_process = ImageProcess(image.data)
-        return image_process.resize(max_width=size_x, max_height=size_y).image_base64()
+            return base64.encodebytes(requests.get(url, timeout=30).content)
+
+        image_process = ImageProcess(base64.b64decode(image.data))
+        image_resize = image_process.resize(max_width=size_x, max_height=size_y)
+        return base64.b64encode(image_resize.image_quality())
 
     def _get_default_backend_id(self):
         """Choose the correct backend.
@@ -70,12 +71,13 @@ class StorageThumbnail(models.Model):
             self.env, "storage.thumbnail.backend_id"
         )
 
-    @api.model
-    def create(self, vals):
-        vals["file_type"] = self._default_file_type
-        if "backend_id" not in vals:
-            vals["backend_id"] = self._get_default_backend_id()
-        return super().create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            vals["file_type"] = self._default_file_type
+            if "backend_id" not in vals:
+                vals["backend_id"] = self._get_default_backend_id()
+        return super().create(vals_list)
 
     def unlink(self):
         files = self.mapped("file_id")

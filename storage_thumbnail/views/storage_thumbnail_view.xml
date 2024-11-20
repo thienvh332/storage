@@ -15,12 +15,12 @@
     <record id="view_thumbnail_tree" model="ir.ui.view">
         <field name="model">storage.thumbnail</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name" />
                 <field name="url_key" />
                 <field name="size_x" />
                 <field name="size_y" />
-            </tree>
+            </list>
         </field>
     </record>
 </odoo>
