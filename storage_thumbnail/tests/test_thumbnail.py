@@ -115,19 +115,27 @@ class TestStorageThumbnail(TransactionComponentCase):
         self.assertRecordValues(images, expected)
         # Unless we enforce it
         image1.backend_id.backend_view_use_internal_url = True
-        images.invalidate_cache()
+        images.invalidate_recordset()
         expected = [
             {
                 "url": f"{cdn}/akretion-logo-{image1.file_id.id}.png",
                 "internal_url": f"/storage.file/akretion-logo-{image1.file_id.id}.png",
-                "image_medium_url": f"/storage.file/akretion-logo_128_128-{t1_med_file.id}.png",
-                "image_small_url": f"/storage.file/akretion-logo_64_64-{t1_small_file.id}.png",
+                "image_medium_url": (
+                    f"/storage.file/akretion-logo_128_128-{t1_med_file.id}.png"
+                ),
+                "image_small_url": (
+                    f"/storage.file/akretion-logo_64_64-{t1_small_file.id}.png"
+                ),
             },
             {
                 "url": f"{cdn}/another-{image2.file_id.id}.png",
                 "internal_url": f"/storage.file/another-{image2.file_id.id}.png",
-                "image_medium_url": f"/storage.file/another_128_128-{t2_med_file.id}.png",
-                "image_small_url": f"/storage.file/another_64_64-{t2_small_file.id}.png",
+                "image_medium_url": (
+                    f"/storage.file/another_128_128-{t2_med_file.id}.png"
+                ),
+                "image_small_url": (
+                    f"/storage.file/another_64_64-{t2_small_file.id}.png"
+                ),
             },
         ]
         self.assertRecordValues(images, expected)

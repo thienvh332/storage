@@ -53,7 +53,7 @@ class ThumbnailMixing(models.AbstractModel):
     def _compute_main_thumbs(self):
         for rec in self:
             for scale in self._image_scale_mapping.keys():
-                fname = "thumb_%s_id" % scale
+                fname = f"thumb_{scale}_id"
                 rec[fname] = rec._get_thumb(scale_key=scale)
 
     @api.depends(
@@ -113,7 +113,7 @@ class ThumbnailMixing(models.AbstractModel):
             # storage.thumbnail is not defined as a one2many to this mixin.
             # As consequence, the ORM is not able to trigger the invalidation
             # of thumbnail_ids on our mixin
-            self.thumbnail_ids.refresh()
+            self.invalidate_recordset(fnames=["thumbnail_ids"])
         return thumbnail
 
     def generate_odoo_thumbnail(self):
@@ -122,8 +122,11 @@ class ThumbnailMixing(models.AbstractModel):
         self_sudo._get_medium_thumbnail()
         return True
 
-    @api.model
-    def create(self, vals):
-        record = super().create(vals)
-        record.generate_odoo_thumbnail()
-        return record
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+
+        for record in records:
+            record.generate_odoo_thumbnail()
+
+        return records

@@ -59,6 +59,13 @@ Contributors
 -  Sebastien Beau <sebastien.beau@akretion.com>
 -  Raphaël Reverdy <raphael.reverdy@akretion.com>
 -  Denis Roussel <denis.roussel@acsone.eu>
+-  Vo Hong Thien <thienvh@trobz.com>
+
+Other credits
+-------------
+
+The migration of this module from 15.0 to 18.0 was financially supported
+by Camptocamp
 
 Maintainers
 -----------
