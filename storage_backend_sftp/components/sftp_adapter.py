@@ -10,14 +10,11 @@ import os
 from contextlib import contextmanager
 from io import StringIO
 
+import paramiko
+
 from odoo.addons.component.core import Component
 
 _logger = logging.getLogger(__name__)
-
-try:
-    import paramiko
-except ImportError as err:  # pragma: no cover
-    _logger.debug(err)
 
 
 def sftp_mkdirs(client, path, mode=511):
@@ -85,7 +82,7 @@ class SFTPStorageBackendAdapter(Component):
         with sftp(self.collection) as client:
             file_data = client.open(full_path, "r")
             data = file_data.read()
-            # TODO: shouldn't we close the file?
+            file_data.close()
         return data
 
     def list(self, relative_path):
