@@ -24,6 +24,7 @@ addon | version | maintainers | summary
 [fs_attachment](fs_attachment/) | 18.0.1.2.1 | [![lmignon](https://github.com/lmignon.png?size=30px)](https://github.com/lmignon) | Store attachments on external object store
 [fs_storage](fs_storage/) | 18.0.1.0.1 |  | Implement the concept of Storage with amazon S3, sftp...
 [storage_backend](storage_backend/) | 18.0.1.0.0 |  | Implement the concept of Storage with amazon S3, sftp...
+[storage_backend_sftp](storage_backend_sftp/) | 18.0.1.0.0 |  | Implement SFTP Storage
 
 [//]: # (end addons)
 
