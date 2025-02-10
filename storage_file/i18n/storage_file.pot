@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 15.0\n"
+"Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -12,6 +12,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: storage_file
+#: model:ir.model.fields,help:storage_file.field_storage_file__url_path
+msgid "Accessible path, no base URL"
+msgstr ""
 
 #. module: storage_file
 #: model:ir.model.fields,field_description:storage_file.field_storage_file__active
@@ -45,8 +50,6 @@ msgstr ""
 
 #. module: storage_file
 #: model:ir.actions.server,name:storage_file.ir_cron_clean_storage_file_ir_actions_server
-#: model:ir.cron,cron_name:storage_file.ir_cron_clean_storage_file
-#: model:ir.cron,name:storage_file.ir_cron_clean_storage_file
 msgid "Clean Storage File"
 msgstr ""
 
@@ -57,22 +60,21 @@ msgstr ""
 
 #. module: storage_file
 #: model:ir.model.fields,field_description:storage_file.field_storage_file__create_uid
+#: model:ir.model.fields,field_description:storage_file.field_storage_file_replace__create_uid
 msgid "Created by"
 msgstr ""
 
 #. module: storage_file
 #: model:ir.model.fields,field_description:storage_file.field_storage_file__create_date
+#: model:ir.model.fields,field_description:storage_file.field_storage_file_replace__create_date
 msgid "Created on"
 msgstr ""
 
 #. module: storage_file
 #: model:ir.model.fields,field_description:storage_file.field_storage_file__data
-msgid "Data"
-msgstr ""
-
-#. module: storage_file
+#: model:ir.model.fields,field_description:storage_file.field_storage_file_replace__data
 #: model:ir.model.fields,help:storage_file.field_storage_file__data
-msgid "Datas"
+msgid "Data"
 msgstr ""
 
 #. module: storage_file
@@ -93,6 +95,7 @@ msgstr ""
 
 #. module: storage_file
 #: model:ir.model.fields,field_description:storage_file.field_storage_file__display_name
+#: model:ir.model.fields,field_description:storage_file.field_storage_file_replace__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -108,10 +111,16 @@ msgstr ""
 
 #. module: storage_file
 #: model:ir.actions.act_window,name:storage_file.act_open_storage_file_view
+#: model:ir.model.fields,field_description:storage_file.field_storage_file_replace__file_id
 #: model:ir.ui.menu,name:storage_file.menu_storage_file
 #: model_terms:ir.ui.view,arch_db:storage_file.storage_file_view_form
 #: model_terms:ir.ui.view,arch_db:storage_file.storage_file_view_search
 msgid "File"
+msgstr ""
+
+#. module: storage_file
+#: model:ir.model.fields,field_description:storage_file.field_storage_file_replace__file_name
+msgid "File Name"
 msgstr ""
 
 #. module: storage_file
@@ -125,9 +134,9 @@ msgid "File Type"
 msgstr ""
 
 #. module: storage_file
+#. odoo-python
 #: code:addons/storage_file/models/storage_file.py:0
-#, python-format
-msgid "File can not be updated,remove it and create a new one"
+msgid "File can not be updated, remove it and create a new one"
 msgstr ""
 
 #. module: storage_file
@@ -157,6 +166,7 @@ msgstr ""
 
 #. module: storage_file
 #: model:ir.model.fields,field_description:storage_file.field_storage_file__id
+#: model:ir.model.fields,field_description:storage_file.field_storage_file_replace__id
 msgid "ID"
 msgstr ""
 
@@ -178,17 +188,14 @@ msgid "Is Public"
 msgstr ""
 
 #. module: storage_file
-#: model:ir.model.fields,field_description:storage_file.field_storage_file____last_update
-msgid "Last Modified on"
-msgstr ""
-
-#. module: storage_file
 #: model:ir.model.fields,field_description:storage_file.field_storage_file__write_uid
+#: model:ir.model.fields,field_description:storage_file.field_storage_file_replace__write_uid
 msgid "Last Updated by"
 msgstr ""
 
 #. module: storage_file
 #: model:ir.model.fields,field_description:storage_file.field_storage_file__write_date
+#: model:ir.model.fields,field_description:storage_file.field_storage_file_replace__write_date
 msgid "Last Updated on"
 msgstr ""
 
@@ -291,8 +298,8 @@ msgid ""
 msgstr ""
 
 #. module: storage_file
+#. odoo-python
 #: code:addons/storage_file/models/storage_file.py:0
-#, python-format
 msgid ""
 "The filename strategy is empty for the backend %s.\n"
 "Please configure it"
@@ -319,6 +326,11 @@ msgid "Url Include Directory Path"
 msgstr ""
 
 #. module: storage_file
+#: model:ir.model.fields,field_description:storage_file.field_storage_file__url_path
+msgid "Url Path"
+msgstr ""
+
+#. module: storage_file
 #: model_terms:ir.ui.view,arch_db:storage_file.storage_backend_view_form
 msgid ""
 "When served by external service you might have special environment configuration\n"
@@ -327,4 +339,9 @@ msgid ""
 "                    If you change some parameters (eg: in local dev environment or special instances)\n"
 "                    and you still want to see the images you might need to refresh this URL\n"
 "                    to make sure images and/or files are loaded correctly."
+msgstr ""
+
+#. module: storage_file
+#: model:ir.model,name:storage_file.model_storage_file_replace
+msgid "Wizard template allowing to replace a storage.file"
 msgstr ""
