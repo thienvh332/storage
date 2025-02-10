@@ -25,6 +25,7 @@ addon | version | maintainers | summary
 [fs_storage](fs_storage/) | 18.0.1.0.1 |  | Implement the concept of Storage with amazon S3, sftp...
 [storage_backend](storage_backend/) | 18.0.1.0.0 |  | Implement the concept of Storage with amazon S3, sftp...
 [storage_backend_sftp](storage_backend_sftp/) | 18.0.1.0.0 |  | Implement SFTP Storage
+[storage_file](storage_file/) | 18.0.1.0.0 |  | Storage file in storage backend
 
 [//]: # (end addons)
 
